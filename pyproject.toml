@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mi-thermal-editor"
+version = "1.0.0"
+description = "Linux GUI and CLI suite for decrypting, analyzing, editing, and injecting Xiaomi / HyperOS thermal configurations."
+readme = "README.md"
+authors = [{ name = "Xiaomi Thermal Research Community" }]
+license = { text = "MIT" }
+requires-python = ">=3.8"
+dependencies = [
+    "cryptography>=38.0.0",
+]
+
+[project.scripts]
+mi-thermal-editor = "mi_thermal_editor.cli:main"
+
+[project.urls]
+"Source" = "https://github.com/kenway214/pandemonium-kernel-manager-updater"
