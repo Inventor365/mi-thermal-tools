@@ -547,10 +547,17 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             <div class="sidebar-section">
                 <div class="sidebar-title">Thermal Source Directory</div>
                 <div class="source-input-group">
-                    <input type="text" id="srcDirInput" placeholder="/odm/etc or folder path" />
-                    <button onclick="fetchFiles()">Scan</button>
+                    <input type="text" id="srcDirInput" placeholder="Folder or file path..." style="flex:1" />
+                    <button onclick="fetchFiles()" title="Scan">🔍</button>
+                    <button onclick="browseLocalFolder()" style="padding:6px; font-size:14px;" title="Browse Folder">📂</button>
+                    <button onclick="browseLocalFile()" style="padding:6px; font-size:14px;" title="Browse File">📄</button>
                 </div>
-                <div class="preset-pills">
+                <div style="margin-top: 8px;">
+                    <label class="checkbox-label" style="font-size:12px;">
+                        <input type="checkbox" id="recursiveScan" /> Scan Folders Recursively
+                    </label>
+                </div>
+                <div class="preset-pills" style="margin-top: 8px;">
                     <span class="pill" onclick="setDir('/odm/etc')">/odm/etc</span>
                     <span class="pill" onclick="setDir('/vendor/etc')">/vendor/etc</span>
                     <span class="pill" onclick="setDir('/system/etc')">/system/etc</span>
@@ -705,24 +712,30 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     <!-- Batch Decrypt Modal -->
     <div id="batchDecryptModal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 class="modal-title">📦 Batch Decrypt Thermal Files</h2>
-            <div class="modal-body">
+        <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column;">
+            <h2 class="modal-title">📦 Decrypt Scanned Configurations</h2>
+            <div class="modal-body" style="overflow-y: auto;">
                 <p style="color: var(--text-secondary); margin-bottom: 10px;">
-                    Decrypts all AES-128-CBC thermal files in a directory to plaintext.
+                    Select the configs you want to decrypt from the current scan.
                 </p>
                 <div style="margin-bottom: 10px;">
-                    <label class="sidebar-title">Source Directory (Encrypted)</label>
-                    <input type="text" id="batchDecSrc" />
+                    <label class="checkbox-label" style="font-size: 14px;">
+                        <input type="checkbox" id="selectAllDecrypt" onchange="toggleSelectAllDecrypt(this)" />
+                        Select All Encrypted Files
+                    </label>
+                </div>
+                <div id="decryptChecklist" style="background: var(--bg-dark); padding: 10px; border-radius: 6px; max-height: 250px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--border-color);">
+                    <!-- Checkboxes injected here via JS -->
                 </div>
                 <div>
                     <label class="sidebar-title">Output Directory (Plaintext)</label>
-                    <input type="text" id="batchDecDst" value="/tmp/decrypted_thermal" />
+                    <input type="text" id="batchDecDst" value="/tmp/decrypted_thermal" style="width: 100%; padding: 8px; background: var(--bg-input); color: #fff; border: 1px solid var(--border-color); border-radius: 6px;" />
                 </div>
             </div>
-            <div class="modal-actions">
+            <div class="modal-actions" style="margin-top: auto; padding-top: 15px;">
                 <button onclick="closeModal('batchDecryptModal')">Cancel</button>
-                <button class="btn-primary" onclick="executeBatchDecrypt()">Start Decryption</button>
+                <button class="btn-primary" onclick="executeBatchDecrypt(false)">Decrypt Selected</button>
+                <button class="btn-accent" onclick="executeBatchDecrypt(true)">Batch Decrypt All</button>
             </div>
         </div>
     </div>
@@ -786,8 +799,41 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             setTimeout(() => { toast.style.display = "none"; }, 3500);
         }
 
-        function openModal(id) { document.getElementById(id).classList.add("active"); }
+        function openModal(id) {
+            if (id === 'batchDecryptModal') {
+                populateDecryptChecklist();
+            }
+            document.getElementById(id).classList.add("active");
+        }
         function closeModal(id) { document.getElementById(id).classList.remove("active"); }
+
+        function toggleSelectAllDecrypt(cb) {
+            const checkboxes = document.querySelectorAll('#decryptChecklist input[type="checkbox"]');
+            checkboxes.forEach(c => c.checked = cb.checked);
+        }
+
+        function populateDecryptChecklist() {
+            const container = document.getElementById("decryptChecklist");
+            container.innerHTML = "";
+            const encFiles = allFiles.filter(f => f.is_encrypted);
+            if (encFiles.length === 0) {
+                container.innerHTML = "<div style='color: var(--text-muted);'>No encrypted files found in the current scan.</div>";
+                return;
+            }
+            encFiles.forEach(f => {
+                const div = document.createElement("div");
+                div.style.marginBottom = "6px";
+                div.innerHTML = `
+                    <label class="checkbox-label" style="display: flex; cursor: pointer; align-items: center; gap: 8px;">
+                        <input type="checkbox" value="${f.path}" />
+                        <span style="color: var(--accent-cyan); font-weight: 500;">${f.name}</span>
+                        <span style="color: var(--text-muted); font-size: 11px;">(${f.path})</span>
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById("selectAllDecrypt").checked = false;
+        }
 
         function switchTab(tabId, btn) {
             document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -801,13 +847,37 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             fetchFiles();
         }
 
+        async function browseLocalFile() {
+            try {
+                const res = await fetch("/api/browse?type=file");
+                const data = await res.json();
+                if (data.path) {
+                    document.getElementById("srcDirInput").value = data.path;
+                    fetchFiles();
+                }
+            } catch (err) { showToast("Error browsing for file."); }
+        }
+
+        async function browseLocalFolder() {
+            try {
+                const res = await fetch("/api/browse?type=folder");
+                const data = await res.json();
+                if (data.path) {
+                    document.getElementById("srcDirInput").value = data.path;
+                    fetchFiles();
+                }
+            } catch (err) { showToast("Error browsing for folder."); }
+        }
+
         async function fetchFiles() {
             const dir = document.getElementById("srcDirInput").value.trim();
+            const recEl = document.getElementById("recursiveScan");
+            const recursive = recEl ? recEl.checked : false;
             const listEl = document.getElementById("fileList");
             listEl.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Loading files...</div>';
 
             try {
-                const res = await fetch(`/api/files?dir=${encodeURIComponent(dir)}`);
+                const res = await fetch(`/api/files?dir=${encodeURIComponent(dir)}&recursive=${recursive}`);
                 const data = await res.json();
                 allFiles = data.files || [];
                 renderFileList();
@@ -1152,22 +1222,38 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             }
         }
 
-        async function executeBatchDecrypt() {
-            const src = document.getElementById("batchDecSrc").value.trim();
+        async function executeBatchDecrypt(decryptAll = false) {
             const dst = document.getElementById("batchDecDst").value.trim();
-            if (!src || !dst) {
-                showToast("Please provide both source and destination folders.");
+            if (!dst) {
+                showToast("Please provide a destination folder.");
                 return;
             }
 
-            const res = await fetch("/api/batch-decrypt", {
+            let selFiles = [];
+            if (decryptAll) {
+                selFiles = allFiles.filter(f => f.is_encrypted).map(f => f.path);
+            } else {
+                const checkboxes = document.querySelectorAll('#decryptChecklist input[type="checkbox"]:checked');
+                checkboxes.forEach(c => selFiles.push(c.value));
+            }
+
+            if (selFiles.length === 0) {
+                showToast("No encrypted files selected to decrypt.");
+                return;
+            }
+
+            const res = await fetch("/api/batch-decrypt-selected", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ src: src, dst: dst })
+                body: JSON.stringify({ files: selFiles, dst: dst })
             });
             const data = await res.json();
             closeModal("batchDecryptModal");
-            showToast(`Batch Decrypted ${data.count || 0} files into ${dst}`);
+            if (data.success) {
+                showToast(`Successfully decrypted ${data.count || 0} files into ${dst}`);
+            } else {
+                showToast(`Batch decryption failed: ${data.error}`);
+            }
         }
 
         async function executeBatchEncrypt() {
@@ -1192,8 +1278,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         window.onload = () => {
             const defaultDir = "/serverhive/yukia/luna/vendor/xiaomi/peridot/proprietary/odm/etc";
             document.getElementById("srcDirInput").value = defaultDir;
-            document.getElementById("batchDecSrc").value = defaultDir;
-            document.getElementById("batchEncSrc").value = "/tmp/decrypted_thermal";
+            const batchEncSrcEl = document.getElementById("batchEncSrc");
+            if (batchEncSrcEl) batchEncSrcEl.value = "/tmp/decrypted_thermal";
             fetchFiles();
             loadSconfigDb();
         };
@@ -1224,24 +1310,54 @@ class MiThermalWebHandler(BaseHTTPRequestHandler):
             self.send_json(XIAOMI_SCONFIG_DB)
             return
 
+        if path == "/api/browse":
+            b_type = query.get("type", ["file"])[0]
+            try:
+                import tkinter as tk
+                from tkinter import filedialog
+                
+                def open_dialog():
+                    root = tk.Tk()
+                    root.withdraw()
+                    root.attributes('-topmost', True)
+                    if b_type == "folder":
+                        res = filedialog.askdirectory(title="Select Folder")
+                    else:
+                        res = filedialog.askopenfilename(title="Select Thermal Config", filetypes=[("Conf Files", "*.conf"), ("All Files", "*.*")])
+                    root.destroy()
+                    return res
+                    
+                selected_path = open_dialog()
+            except Exception as e:
+                selected_path = ""
+                
+            self.send_json({"path": selected_path})
+            return
+
         if path == "/api/files":
             src_dir = query.get("dir", ["."])[0]
+            recursive = query.get("recursive", ["false"])[0].lower() == "true"
             files_list = []
-            if os.path.isdir(src_dir):
-                for p in scan_thermal_files(src_dir):
-                    try:
-                        with open(p, "rb") as fp:
-                            header = fp.read(32)
-                        is_enc = (len(header) > 0 and len(header) % 16 == 0 and b"[" not in header[:4])
-                    except Exception:
-                        is_enc = False
+            
+            def add_file(p):
+                try:
+                    with open(p, "rb") as fp:
+                        header = fp.read(32)
+                    is_enc = (len(header) > 0 and len(header) % 16 == 0 and b"[" not in header[:4])
+                except Exception:
+                    is_enc = False
+                files_list.append({
+                    "name": p.name,
+                    "path": str(p),
+                    "size": p.stat().st_size,
+                    "is_encrypted": is_enc
+                })
 
-                    files_list.append({
-                        "name": p.name,
-                        "path": str(p),
-                        "size": p.stat().st_size,
-                        "is_encrypted": is_enc
-                    })
+            if os.path.isfile(src_dir):
+                add_file(Path(src_dir))
+            elif os.path.isdir(src_dir):
+                for p in scan_thermal_files(src_dir, recursive=recursive):
+                    add_file(p)
             self.send_json({"files": files_list})
             return
 
@@ -1423,6 +1539,32 @@ class MiThermalWebHandler(BaseHTTPRequestHandler):
             try:
                 results = batch_decrypt_directory(str(src), str(dst))
                 self.send_json({"success": True, "count": len(results)})
+            except Exception as e:
+                self.send_json({"success": False, "error": str(e)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            return
+
+        if path == "/api/batch-decrypt-selected":
+            files = payload.get("files", [])
+            dst = payload.get("dst")
+            if not files or not dst:
+                self.send_json({"success": False, "error": "Missing files or dst directory"}, status=HTTPStatus.BAD_REQUEST)
+                return
+            try:
+                dst_path = Path(dst)
+                count = 0
+                for fpath_str in files:
+                    fpath = Path(fpath_str)
+                    if not fpath.exists(): continue
+                    try:
+                        t_obj = load_thermal_file(fpath)
+                        out_file = dst_path / fpath.name
+                        out_file.parent.mkdir(parents=True, exist_ok=True)
+                        with open(out_file, "w", encoding="utf-8") as out_fp:
+                            out_fp.write(t_obj.content)
+                        count += 1
+                    except Exception as e:
+                        print(f"Error decrypting {fpath}: {e}")
+                self.send_json({"success": True, "count": count})
             except Exception as e:
                 self.send_json({"success": False, "error": str(e)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
             return
