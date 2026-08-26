@@ -454,3 +454,6 @@ mi-thermal-editor/
 
 - **[@ph12nex](https://github.com/ph12nex)** â€” For reverse-engineering the Xiaomi thermal AES-128-CBC encryption key (`thermalopenssl.h`), decryption heuristics, and original implementation in the Pandemonium Kernel Manager Android application.
 - **[Pandemonium Kernel Manager Updater](https://github.com/kenway214/pandemonium-kernel-manager-updater)** by **[@kenway214](https://github.com/kenway214)** â€” For the upstream Android application and tools ecosystem.
+
+
+
