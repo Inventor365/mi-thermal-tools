@@ -1,18 +1,18 @@
-# 🔥 Mi Thermal Editor (Linux Edition)
+﻿# ðŸ”¥ Mi Thermal Editor (Cross-Platform Edition)
 
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Platform: Linux](https://img.shields.io/badge/Platform-Linux-orange.svg)]()
+[![Platform: Linux](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-blueviolet.svg)]()
 [![Target: Xiaomi Peridot (SM8635)](https://img.shields.io/badge/Target-Xiaomi%20Peridot%20(SM8635)-green.svg)]()
 [![Cipher: AES--128--CBC](https://img.shields.io/badge/Cipher-AES--128--CBC-red.svg)]()
 
-> A standalone Linux GUI and CLI tool suite to **decrypt**, **analyze**, **edit**, **diff**, and **inject** Xiaomi / MIUI / HyperOS thermal configuration files across `/odm/etc`, `/vendor/etc`, and `/system/etc`.
+> A Standalone Windows / Linux GUI and CLI tool suite to **decrypt**, **analyze**, **edit**, **diff**, and **inject** Xiaomi / MIUI / HyperOS thermal configuration files across `/odm/etc`, `/vendor/etc`, and `/system/etc`.
 >
 > **Note:** The specific thermal profiles, sconfig values, and engineering data documented in this repository are based on deep-dive reverse-engineering of **Xiaomi Peridot (POCO F6 / Redmi Turbo 3 - Qualcomm Snapdragon 8s Gen 3 / SM8635)**.
 
 ---
 
-## 📖 Table of Contents
+## ðŸ“– Table of Contents
 
 - [Overview](#overview)
 - [How Xiaomi Thermal Encryption Works](#how-xiaomi-thermal-encryption-works)
@@ -32,7 +32,7 @@
 
 ---
 
-## 🎯 Overview
+## ðŸŽ¯ Overview
 
 On Xiaomi, Redmi, and POCO devices running MIUI or HyperOS, thermal throttling policies (controlling CPU frequency caps, GPU throttling, charging current stepdowns, brightness dimming, and modem fallback) are defined in configuration files located in:
 - `/odm/etc/thermal*.conf`
@@ -41,11 +41,11 @@ On Xiaomi, Redmi, and POCO devices running MIUI or HyperOS, thermal throttling p
 
 By default, Xiaomi encrypts these files using proprietary AES-128-CBC encryption to prevent users and kernel developers from modifying thermal throttling curves.
 
-**Mi Thermal Editor (Linux Edition)** is a Linux desktop application, web application, and command-line suite that reproduces the thermal decryption, editing, analysis, and injection capabilities found in the **Tools > Mi Thermal Editor** module of the **Pandemonium Kernel Manager (PKM)** Android app.
+**Mi Thermal Editor (Cross-Platform Edition)** is a Linux desktop application, web application, and command-line suite that reproduces the thermal decryption, editing, analysis, and injection capabilities found in the **Tools > Mi Thermal Editor** module of the **Pandemonium Kernel Manager (PKM)** Android app.
 
 ---
 
-## 🔐 How Xiaomi Thermal Encryption Works
+## ðŸ” How Xiaomi Thermal Encryption Works
 
 ### 1. Cryptographic Specifications
 
@@ -80,7 +80,7 @@ Placing an empty file named `thermal-decrypt` in `/vendor/etc/` instructs the `m
 
 ---
 
-## 📱 Xiaomi Peridot (SM8635) Thermal Architecture & Mapping
+## ðŸ“± Xiaomi Peridot (SM8635) Thermal Architecture & Mapping
 
 > **Target Device Focus**: This section contains the exact reverse-engineered profiles for **Xiaomi Peridot** (POCO F6 / Redmi Turbo 3 - Qualcomm Snapdragon 8s Gen 3 / SM8635).
 
@@ -92,49 +92,49 @@ Because **Peridot** is a single-screen phone with wired fast charging (90W) and 
 
 | SCONFIG ID | Target Thermal Config File | Present on Peridot `/odm/etc`? | Category | Profile Purpose & Throttling Characteristics |
 |:---|:---|:---:|:---|:---|
-| **0** | `thermal-normal.conf` | **✅ Yes** | Daily | **Default Balanced Profile**: CPU3/7 throttle starts at 37°C; battery charging stepdown from 15.6A to 0.3A. |
-| **1** | `thermal-huanji.conf` | **✅ Yes** | System | **Data Migration (Mi Mover)**: Disables modem/Wi-Fi throttling for high-speed file transfer. |
-| **2** | `thermal-abnormal.conf` | ❌ Template | Recovery | Emergency thermal recovery mode for rapid heat dissipation. |
-| **3** | `thermal-nightvideo.conf` | ❌ Template | Camera | Night mode video capture with computational ISP noise reduction. |
-| **4** | `thermal-dolbyvision.conf` | ❌ Template | Media | Dolby Vision HDR video playback thermal tuning. |
-| **5** | `thermal-phone.conf` | **✅ Yes** | Daily | **Telephony / In-Call**: Lowers receiver ear-piece surface temperature during voice calls. |
-| **6** | `thermal-nolimits.conf` | **✅ Yes** | Performance | **Benchmark / Unconstrained**: GPU throttle trigger raised to 51°C; uncapped CPU clocks for AnTuTu/Geekbench. |
-| **7** | `thermal-class0.conf` | **✅ Yes** | Gaming | **Heavy 3D Gaming Class 0**: Mild power saving during background 3D tasks. |
-| **8** | `thermal-youtube.conf` | ❌ Template | Media | YouTube and web streaming video playback profile. |
-| **9** | `thermal-arvr.conf` | **✅ Yes** | Graphics | **AR / VR Rendering**: Augmented reality rendering thermal profile. |
-| **10** | `thermal-navigation.conf` | **✅ Yes** | Navigation | **GPS Navigation**: Prevents brightness dimming and modem disconnects under direct sunlight in-car. |
-| **11** | `thermal-video.conf` | **✅ Yes** | Camera | **Standard 1080P/4K Video Recording**: Limits CPU spikes to prevent camera ISP overheating. |
-| **12** | `thermal-demo.conf` | ❌ Template | System | Store demo unit display mode. |
-| **13** | `thermal-sptm.conf` | ❌ Template | Testing | Factory QA / Special Performance Test Mode. |
-| **14** | `thermal-videochat.conf` | **✅ Yes** | Media | **Video Calling**: Tuned for WhatsApp/Teams/Zoom; manages camera ISP, modem, and CPU heat concurrently. |
-| **15** | `thermal-camera.conf` | **✅ Yes** | Camera | **Camera Viewfinder & Photo Capture**: Strictly manages sensor thermals. |
-| **16** | `thermal-4k.conf` | **✅ Yes** | Camera | **4K 60FPS Video Recording (Slot 1)**: Sustained 4K video recording policy. |
-| **17** | `thermal-4k.conf` | **✅ Yes** | Camera | **4K 60FPS Video Recording (Slot 2)**: Secondary slot mapping. |
-| **18** | `thermal-tgame.conf` | **✅ Yes** | Gaming | **Esports / MOBA Gaming**: Tuned for Honor of Kings, MLBB, Wild Rift. |
-| **19** | `thermal-mgame.conf` | **✅ Yes** | Gaming | **Heavy 3D Gaming (MGame)**: PUBG Mobile, BGMI, CoD Mobile; maintains sustained GPU clock ceiling. |
-| **20** | `thermal-yuanshen.conf` | **✅ Yes** | Gaming | **Extreme Gaming (Genshin Impact)**: High 60FPS priority; raises throttle trigger to 48°C. |
-| **25** | `thermal-xingtie.conf` | ❌ Template | Gaming | Honkai Star Rail heavy turn-based 3D gaming. |
-| **26** | `thermal-highfps.conf` | **✅ Yes** | Gaming | **High Refresh Rate Gaming (90/120Hz)**: 90/120 FPS high-refresh competitive gaming profile. |
-| **27** | `thermal-charge.conf` | ❌ Template | Charging | Fast charging thermal management. |
-| **28** | `thermal-extravideo.conf` | ❌ Template | Camera | High-bitrate extended video recording. |
-| **50** | `thermal-per-normal.conf` | **✅ Yes** | Performance | **HyperOS Performance Mode**: Triggered via Control Center toggle. CPU throttle trigger shifted from 37°C to 45°C. |
-| **52** | `thermal-per-abnormal.conf` | ❌ Template | Recovery | Performance mode abnormal recovery. |
-| **57** | `thermal-per-class0.conf` | **✅ Yes** | Gaming | **Performance Mode Heavy Gaming**: Raised thermal trip thresholds for games. |
-| **58** | `thermal-per-youtube.conf`| ❌ Template | Media | Performance mode streaming video. |
-| **60** | `thermal-per-navigation.conf`| ❌ Template | Navigation | Performance mode GPS navigation. |
-| **61** | `thermal-per-video.conf` | **✅ Yes** | Camera | **Performance Mode Video Capture**: Sustained high-resolution video recording. |
-| **76** | `thermal-highfps.conf` | **✅ Yes** | Gaming | Performance mode 90/120Hz gaming slot. |
-| **77** | `thermal-charge.conf` | ❌ Template | Charging | Performance mode fast charge. |
-| **78** | `thermal-extravideo.conf` | ❌ Template | Camera | Performance mode extra video. |
-| **100-161** | `thermal-*-unfold.conf` | ❌ Template | Foldable | Foldable form-factor template profiles (MIX Fold series). |
-| **200-361** | `thermal-iec-*.conf` | ❌ Template | Testing | IEC lab certification testing profiles. |
-| **500** | `thermal-hp-normal.conf` | **✅ Yes** | Performance | **High Power Normal (HP-Normal)**: Raised thermal trip points for heavy multitasking. |
-| **501** | `thermal-hp-mgame.conf` | **✅ Yes** | Gaming | **High Power Gaming (HP-MGame)**: Raised gaming thermal threshold. |
-| **700** | `thermal-cgame.conf` | **✅ Yes** | Gaming | **Concurrent Gaming (CGame)**: Concurrent gaming and background task management. |
-| **701** | `thermal-cclassvideo.conf` | **✅ Yes** | Media | **Concurrent Video**: Video capture during active background data operations. |
-| **704-707** | `thermal-w*.conf` | ❌ Template | Wireless | Wireless charging thermal profiles (Peridot uses 90W wired only). |
-| **N/A** | `thermal-boost.conf` | **✅ Yes** | Performance | **Superfast 90W Charging & Uncapped Boost**: Unlocks full 16A fast charging. |
-| **N/A** | `thermal-chg-only.conf` | **✅ Yes** | Charging | **Screen-Off Fast Charge**: Plaintext profile used when booted in off-mode charging. |
+| **0** | `thermal-normal.conf` | **âœ… Yes** | Daily | **Default Balanced Profile**: CPU3/7 throttle starts at 37Â°C; battery charging stepdown from 15.6A to 0.3A. |
+| **1** | `thermal-huanji.conf` | **âœ… Yes** | System | **Data Migration (Mi Mover)**: Disables modem/Wi-Fi throttling for high-speed file transfer. |
+| **2** | `thermal-abnormal.conf` | âŒ Template | Recovery | Emergency thermal recovery mode for rapid heat dissipation. |
+| **3** | `thermal-nightvideo.conf` | âŒ Template | Camera | Night mode video capture with computational ISP noise reduction. |
+| **4** | `thermal-dolbyvision.conf` | âŒ Template | Media | Dolby Vision HDR video playback thermal tuning. |
+| **5** | `thermal-phone.conf` | **âœ… Yes** | Daily | **Telephony / In-Call**: Lowers receiver ear-piece surface temperature during voice calls. |
+| **6** | `thermal-nolimits.conf` | **âœ… Yes** | Performance | **Benchmark / Unconstrained**: GPU throttle trigger raised to 51Â°C; uncapped CPU clocks for AnTuTu/Geekbench. |
+| **7** | `thermal-class0.conf` | **âœ… Yes** | Gaming | **Heavy 3D Gaming Class 0**: Mild power saving during background 3D tasks. |
+| **8** | `thermal-youtube.conf` | âŒ Template | Media | YouTube and web streaming video playback profile. |
+| **9** | `thermal-arvr.conf` | **âœ… Yes** | Graphics | **AR / VR Rendering**: Augmented reality rendering thermal profile. |
+| **10** | `thermal-navigation.conf` | **âœ… Yes** | Navigation | **GPS Navigation**: Prevents brightness dimming and modem disconnects under direct sunlight in-car. |
+| **11** | `thermal-video.conf` | **âœ… Yes** | Camera | **Standard 1080P/4K Video Recording**: Limits CPU spikes to prevent camera ISP overheating. |
+| **12** | `thermal-demo.conf` | âŒ Template | System | Store demo unit display mode. |
+| **13** | `thermal-sptm.conf` | âŒ Template | Testing | Factory QA / Special Performance Test Mode. |
+| **14** | `thermal-videochat.conf` | **âœ… Yes** | Media | **Video Calling**: Tuned for WhatsApp/Teams/Zoom; manages camera ISP, modem, and CPU heat concurrently. |
+| **15** | `thermal-camera.conf` | **âœ… Yes** | Camera | **Camera Viewfinder & Photo Capture**: Strictly manages sensor thermals. |
+| **16** | `thermal-4k.conf` | **âœ… Yes** | Camera | **4K 60FPS Video Recording (Slot 1)**: Sustained 4K video recording policy. |
+| **17** | `thermal-4k.conf` | **âœ… Yes** | Camera | **4K 60FPS Video Recording (Slot 2)**: Secondary slot mapping. |
+| **18** | `thermal-tgame.conf` | **âœ… Yes** | Gaming | **Esports / MOBA Gaming**: Tuned for Honor of Kings, MLBB, Wild Rift. |
+| **19** | `thermal-mgame.conf` | **âœ… Yes** | Gaming | **Heavy 3D Gaming (MGame)**: PUBG Mobile, BGMI, CoD Mobile; maintains sustained GPU clock ceiling. |
+| **20** | `thermal-yuanshen.conf` | **âœ… Yes** | Gaming | **Extreme Gaming (Genshin Impact)**: High 60FPS priority; raises throttle trigger to 48Â°C. |
+| **25** | `thermal-xingtie.conf` | âŒ Template | Gaming | Honkai Star Rail heavy turn-based 3D gaming. |
+| **26** | `thermal-highfps.conf` | **âœ… Yes** | Gaming | **High Refresh Rate Gaming (90/120Hz)**: 90/120 FPS high-refresh competitive gaming profile. |
+| **27** | `thermal-charge.conf` | âŒ Template | Charging | Fast charging thermal management. |
+| **28** | `thermal-extravideo.conf` | âŒ Template | Camera | High-bitrate extended video recording. |
+| **50** | `thermal-per-normal.conf` | **âœ… Yes** | Performance | **HyperOS Performance Mode**: Triggered via Control Center toggle. CPU throttle trigger shifted from 37Â°C to 45Â°C. |
+| **52** | `thermal-per-abnormal.conf` | âŒ Template | Recovery | Performance mode abnormal recovery. |
+| **57** | `thermal-per-class0.conf` | **âœ… Yes** | Gaming | **Performance Mode Heavy Gaming**: Raised thermal trip thresholds for games. |
+| **58** | `thermal-per-youtube.conf`| âŒ Template | Media | Performance mode streaming video. |
+| **60** | `thermal-per-navigation.conf`| âŒ Template | Navigation | Performance mode GPS navigation. |
+| **61** | `thermal-per-video.conf` | **âœ… Yes** | Camera | **Performance Mode Video Capture**: Sustained high-resolution video recording. |
+| **76** | `thermal-highfps.conf` | **âœ… Yes** | Gaming | Performance mode 90/120Hz gaming slot. |
+| **77** | `thermal-charge.conf` | âŒ Template | Charging | Performance mode fast charge. |
+| **78** | `thermal-extravideo.conf` | âŒ Template | Camera | Performance mode extra video. |
+| **100-161** | `thermal-*-unfold.conf` | âŒ Template | Foldable | Foldable form-factor template profiles (MIX Fold series). |
+| **200-361** | `thermal-iec-*.conf` | âŒ Template | Testing | IEC lab certification testing profiles. |
+| **500** | `thermal-hp-normal.conf` | **âœ… Yes** | Performance | **High Power Normal (HP-Normal)**: Raised thermal trip points for heavy multitasking. |
+| **501** | `thermal-hp-mgame.conf` | **âœ… Yes** | Gaming | **High Power Gaming (HP-MGame)**: Raised gaming thermal threshold. |
+| **700** | `thermal-cgame.conf` | **âœ… Yes** | Gaming | **Concurrent Gaming (CGame)**: Concurrent gaming and background task management. |
+| **701** | `thermal-cclassvideo.conf` | **âœ… Yes** | Media | **Concurrent Video**: Video capture during active background data operations. |
+| **704-707** | `thermal-w*.conf` | âŒ Template | Wireless | Wireless charging thermal profiles (Peridot uses 90W wired only). |
+| **N/A** | `thermal-boost.conf` | **âœ… Yes** | Performance | **Superfast 90W Charging & Uncapped Boost**: Unlocks full 16A fast charging. |
+| **N/A** | `thermal-chg-only.conf` | **âœ… Yes** | Charging | **Screen-Off Fast Charge**: Plaintext profile used when booted in off-mode charging. |
 
 ---
 
@@ -172,7 +172,7 @@ The India-specific configuration files (`thermal-india-*.conf`) are tuned for hi
 
 ---
 
-## ⚡ Features
+## âš¡ Features
 
 - **Dual Graphical User Interface**:
   - **Native Desktop GUI**: Dark Material design, syntax highlighting, diff viewer, visual threshold tables, and ADB sync.
@@ -180,7 +180,7 @@ The India-specific configuration files (`thermal-india-*.conf`) are tuned for hi
 - **One-Click Decrypt & Encrypt**: Decrypt proprietary Xiaomi thermal binaries to readable `.conf` / `.json` or re-encrypt for flashing/injection.
 - **Thermal Policy & Mitigation Analyzer**:
   - Automatically identifies virtual and physical thermal sensors.
-  - Decodes CPU/GPU frequency stepdowns at each trigger temperature (°C).
+  - Decodes CPU/GPU frequency stepdowns at each trigger temperature (Â°C).
   - Inspects battery charging rate stepdowns (`thermal_fcc_override`).
   - Matches profiles against the Xiaomi SCONFIG database.
 - **Semantic & Line Diff Viewer**: Compare stock vs modified thermal configs, or compare balanced vs gaming profiles side-by-side.
@@ -189,7 +189,7 @@ The India-specific configuration files (`thermal-india-*.conf`) are tuned for hi
 
 ---
 
-## 💻 Installation & Requirements
+## ðŸ’» Installation & Requirements
 
 ### Requirements
 - **OS**: Linux (Ubuntu, Debian, Fedora, Arch, etc.)
@@ -197,9 +197,22 @@ The India-specific configuration files (`thermal-india-*.conf`) are tuned for hi
 - **Dependencies**: `cryptography`
 - *(Optional)*: `adb` (Android Debug Bridge for USB device communication)
 
-### Quick Setup
+### Quick Setup (Windows)
 
-```bash
+1. **Install Python**: Download [Python 3.8+](https://www.python.org/downloads/windows/) and ensure **"Add Python to PATH"** is checked during installation.
+2. Clone the repository or download the ZIP:
+``cmd
+git clone https://github.com/Inventor365/mi-thermal-tools.git
+cd mi-thermal-tools
+``
+3. Run the tool. The included batch script (mi-thermal-editor.bat) automatically detects missing dependencies and installs them:
+``cmd
+mi-thermal-editor.bat gui
+``
+
+### Quick Setup (Linux)
+
+``bash
 # Clone the repository
 git clone https://github.com/Inventor365/mi-thermal-tools.git
 cd mi-thermal-tools
@@ -207,13 +220,16 @@ cd mi-thermal-tools
 # Install dependencies
 pip3 install cryptography
 
+# Run the GUI
+./mi-thermal-editor gui
+``
 # (Optional) Install as local package
 pip3 install -e .
 ```
 
 ---
 
-## 🖥️ Graphical User Interface (GUI)
+## ðŸ–¥ï¸ Graphical User Interface (GUI)
 
 ### 1. Native Desktop GUI (Tkinter)
 
@@ -225,7 +241,7 @@ Launch the native desktop interface:
 ```
 
 Features included in the Desktop GUI:
-- **File Explorer Sidebar**: One-click presets for `/odm/etc`, `/vendor/etc`, `/system/etc`, live search filter, and encryption status badges (`🔒 Encrypted` / `📄 Plaintext`).
+- **File Explorer Sidebar**: One-click presets for `/odm/etc`, `/vendor/etc`, `/system/etc`, live search filter, and encryption status badges (`ðŸ”’ Encrypted` / `ðŸ“„ Plaintext`).
 - **Code Editor**: Real-time syntax highlighting for thermal configuration syntax, undo/redo, and save options.
 - **Visual Analyzer Tab**: Tabulated sensor threshold curves and device throttling action lists.
 - **Diff & Compare Tab**: Visual side-by-side section and unified line diff.
@@ -241,7 +257,7 @@ Open `http://localhost:8080` in your web browser.
 
 ---
 
-## ⌨️ Command-Line Interface (CLI) Guide
+## âŒ¨ï¸ Command-Line Interface (CLI) Guide
 
 ### 1. Decrypt a Thermal File
 ```bash
@@ -272,12 +288,12 @@ Open `http://localhost:8080` in your web browser.
 *Output preview on Xiaomi Peridot:*
 ```text
 ======================================================================
-🔥 THERMAL CONFIGURATION ANALYSIS: thermal-mgame.conf
+ðŸ”¥ THERMAL CONFIGURATION ANALYSIS: thermal-mgame.conf
 ======================================================================
-Encryption Status : 🔒 AES-128-CBC Encrypted
+Encryption Status : ðŸ”’ AES-128-CBC Encrypted
 Total Sections    : 14
 Algorithm Types   : ss (4), sic (1), monitor (9)
-Temperature Range : 1.0°C to 65.0°C
+Temperature Range : 1.0Â°C to 65.0Â°C
 
 [Xiaomi SCONFIG Profile]
   ID       : 19
@@ -287,15 +303,15 @@ Temperature Range : 1.0°C to 65.0°C
 [Device Throttling Mitigations]
   Device             | Section                | Trig     | Clr      | Mitigation Action
   ---------------------------------------------------------------------------
-  cpu0               | MGAME-SS-CPU0          | 46.0°C   | 44.0°C   | 902400
-  cpu0               | MGAME-SS-CPU0          | 48.0°C   | 46.0°C   | 787200
-  cpu3               | MGAME-SS-CPU3          | 46.0°C   | 45.0°C   | 1056000
-  cpu3               | MGAME-SS-CPU3          | 48.0°C   | 46.0°C   | 787200
-  cpu7               | MGAME-SS-CPU7          | 46.0°C   | 45.0°C   | 1094400
-  cpu7               | MGAME-SS-CPU7          | 48.0°C   | 46.0°C   | 787200
-  thermal_fcc_override | MGAME-SIC-BAT        | 32.0°C   | 31.0°C   | 32000
-  thermal_fcc_override | MGAME-SIC-BAT        | 36.0°C   | 34.0°C   | 36000
-  thermal_fcc_override | MGAME-SIC-BAT        | 42.5°C   | 42.0°C   | 43500
+  cpu0               | MGAME-SS-CPU0          | 46.0Â°C   | 44.0Â°C   | 902400
+  cpu0               | MGAME-SS-CPU0          | 48.0Â°C   | 46.0Â°C   | 787200
+  cpu3               | MGAME-SS-CPU3          | 46.0Â°C   | 45.0Â°C   | 1056000
+  cpu3               | MGAME-SS-CPU3          | 48.0Â°C   | 46.0Â°C   | 787200
+  cpu7               | MGAME-SS-CPU7          | 46.0Â°C   | 45.0Â°C   | 1094400
+  cpu7               | MGAME-SS-CPU7          | 48.0Â°C   | 46.0Â°C   | 787200
+  thermal_fcc_override | MGAME-SIC-BAT        | 32.0Â°C   | 31.0Â°C   | 32000
+  thermal_fcc_override | MGAME-SIC-BAT        | 36.0Â°C   | 34.0Â°C   | 36000
+  thermal_fcc_override | MGAME-SIC-BAT        | 42.5Â°C   | 42.0Â°C   | 43500
 ```
 
 ### 6. Compare Two Thermal Files (Diff)
@@ -322,7 +338,7 @@ Temperature Range : 1.0°C to 65.0°C
 
 ---
 
-## 🛠️ Deep-Dive Thermal Configuration Anatomy
+## ðŸ› ï¸ Deep-Dive Thermal Configuration Anatomy
 
 Xiaomi thermal configurations use the Qualcomm / Xiaomi `thermal-engine` format with specialized algorithm blocks:
 
@@ -371,7 +387,7 @@ min             15600    15600    4600     4500     2500     1000     500      3
 
 ---
 
-## 📝 Step-by-Step Customization Guide
+## ðŸ“ Step-by-Step Customization Guide
 
 ### Example: Relaxing CPU Throttling for Sustained Performance
 
@@ -389,7 +405,7 @@ min             15600    15600    4600     4500     2500     1000     500      3
    In `my-thermal.conf`, locate the CPU cluster throttling rules (e.g. `[SS-CPU3]` or `[SS-CPU7]`):
    ```ini
    [SS-CPU3]
-   # Raise trigger point from 37.0°C to 45.0°C (like Performance Mode)
+   # Raise trigger point from 37.0Â°C to 45.0Â°C (like Performance Mode)
    trig   25000  45000  47000  49000  51000
    clr    23000  43000  45000  47000  49000
    ```
@@ -408,33 +424,33 @@ min             15600    15600    4600     4500     2500     1000     500      3
 
 ---
 
-## 📂 Project Architecture
+## ðŸ“‚ Project Architecture
 
 ```
 mi-thermal-editor/
-├── mi-thermal-editor             # Executable CLI/GUI launcher
-├── setup.py                      # Package installation script
-├── pyproject.toml                # Project configuration metadata
-├── LICENSE                       # MIT License
-├── README.md                     # Documentation and guide
-├── GUIDE.md                      # Developer architecture guide
-├── mi_thermal_editor/
-│   ├── __init__.py               # Package exports
-│   ├── crypto.py                 # AES-128-CBC engine & validation heuristics
-│   ├── parser.py                 # .conf and .json AST parser
-│   ├── analyzer.py               # Thermal curves & threshold analyzer
-│   ├── diff_engine.py            # Section-aware diff engine
-│   ├── adb.py                    # ADB device bridge & root injector
-│   ├── gui_tk.py                 # Native desktop Tkinter GUI
-│   ├── gui_web.py                # Standalone embedded Web GUI
-│   └── cli.py                    # Command-line interface subcommands
-└── tests/
-    └── test_all.py               # Unit and integration test suite
+â”œâ”€â”€ mi-thermal-editor             # Executable CLI/GUI launcher
+â”œâ”€â”€ setup.py                      # Package installation script
+â”œâ”€â”€ pyproject.toml                # Project configuration metadata
+â”œâ”€â”€ LICENSE                       # MIT License
+â”œâ”€â”€ README.md                     # Documentation and guide
+â”œâ”€â”€ GUIDE.md                      # Developer architecture guide
+â”œâ”€â”€ mi_thermal_editor/
+â”‚   â”œâ”€â”€ __init__.py               # Package exports
+â”‚   â”œâ”€â”€ crypto.py                 # AES-128-CBC engine & validation heuristics
+â”‚   â”œâ”€â”€ parser.py                 # .conf and .json AST parser
+â”‚   â”œâ”€â”€ analyzer.py               # Thermal curves & threshold analyzer
+â”‚   â”œâ”€â”€ diff_engine.py            # Section-aware diff engine
+â”‚   â”œâ”€â”€ adb.py                    # ADB device bridge & root injector
+â”‚   â”œâ”€â”€ gui_tk.py                 # Native desktop Tkinter GUI
+â”‚   â”œâ”€â”€ gui_web.py                # Standalone embedded Web GUI
+â”‚   â””â”€â”€ cli.py                    # Command-line interface subcommands
+â””â”€â”€ tests/
+    â””â”€â”€ test_all.py               # Unit and integration test suite
 ```
 
 ---
 
-## 🤝 Credits & Acknowledgments
+## ðŸ¤ Credits & Acknowledgments
 
-- **[@ph12nex](https://github.com/ph12nex)** — For reverse-engineering the Xiaomi thermal AES-128-CBC encryption key (`thermalopenssl.h`), decryption heuristics, and original implementation in the Pandemonium Kernel Manager Android application.
-- **[Pandemonium Kernel Manager Updater](https://github.com/kenway214/pandemonium-kernel-manager-updater)** by **[@kenway214](https://github.com/kenway214)** — For the upstream Android application and tools ecosystem.
+- **[@ph12nex](https://github.com/ph12nex)** â€” For reverse-engineering the Xiaomi thermal AES-128-CBC encryption key (`thermalopenssl.h`), decryption heuristics, and original implementation in the Pandemonium Kernel Manager Android application.
+- **[Pandemonium Kernel Manager Updater](https://github.com/kenway214/pandemonium-kernel-manager-updater)** by **[@kenway214](https://github.com/kenway214)** â€” For the upstream Android application and tools ecosystem.
