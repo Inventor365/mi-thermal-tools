@@ -7,6 +7,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "cryptography>=38.0.0",
+        "PySide6>=6.0.0",
     ],
     entry_points={
         "console_scripts": [

@@ -9,8 +9,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mi_thermal_editor.analyzer import analyze_thermal_config
-from mi_thermal_editor.crypto import (
+from mi_thermal_editor.core.analyzer import analyze_thermal_config
+from mi_thermal_editor.core.crypto import (
     DEFAULT_IV,
     DEFAULT_KEY,
     batch_decrypt_directory,
@@ -21,8 +21,8 @@ from mi_thermal_editor.crypto import (
     load_thermal_file,
     save_thermal_file,
 )
-from mi_thermal_editor.diff_engine import compute_thermal_diff
-from mi_thermal_editor.parser import parse_conf, parse_thermal_config
+from mi_thermal_editor.core.diff_engine import compute_thermal_diff
+from mi_thermal_editor.core.parser import parse_conf, parse_thermal_config
 
 
 SAMPLE_THERMAL_CONF = """

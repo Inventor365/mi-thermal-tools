@@ -12,9 +12,9 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from .adb import ADBManager
-from .analyzer import XIAOMI_SCONFIG_DB, analyze_thermal_config
-from .crypto import (
+from .services.adb_service import ADBManager
+from .core.analyzer import XIAOMI_SCONFIG_DB, analyze_thermal_config
+from .core.crypto import (
     batch_decrypt_directory,
     batch_encrypt_directory,
     decrypt_data,
@@ -23,8 +23,8 @@ from .crypto import (
     save_thermal_file,
     scan_thermal_files,
 )
-from .diff_engine import compute_thermal_diff
-from .parser import parse_thermal_config
+from .core.diff_engine import compute_thermal_diff
+from .core.parser import parse_thermal_config
 
 
 def print_banner():
@@ -266,11 +266,14 @@ def cli_adb_inject(args):
 def cli_launch_gui(args):
     initial_dir = args.dir
 
-    # If display is available, launch Tkinter GUI; otherwise launch Web GUI
+    # If running on Windows/Mac, or we have a display on Linux, launch Tkinter GUI; otherwise launch Web GUI
+    is_windows_or_mac = os.name == 'nt' or sys.platform == 'darwin'
     display = os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")
-    if display and not args.force_web:
+    can_run_native = is_windows_or_mac or bool(display)
+
+    if can_run_native and not args.force_web:
         try:
-            from .gui_tk import launch_gui
+            from .ui.main_window import launch_gui
             launch_gui(initial_dir=initial_dir)
             return
         except Exception as e:

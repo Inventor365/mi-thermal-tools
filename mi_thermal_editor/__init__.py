@@ -3,7 +3,7 @@ Mi Thermal Editor - Linux Suite
 Comprehensive tools for decrypting, analyzing, editing, and injecting Xiaomi/MIUI/HyperOS thermal configurations.
 """
 
-from .crypto import (
+from .core.crypto import (
     DEFAULT_KEY,
     DEFAULT_IV,
     ThermalFile,
@@ -15,26 +15,26 @@ from .crypto import (
     batch_decrypt_directory,
     batch_encrypt_directory,
 )
-from .parser import (
+from .core.parser import (
     ThermalConfig,
     ThermalSection,
     ThermalTripPoint,
     parse_thermal_config,
     parse_conf,
 )
-from .analyzer import (
+from .core.analyzer import (
     XIAOMI_SCONFIG_DB,
     ThermalAnalysisReport,
     SensorAnalysis,
     DeviceMitigationAnalysis,
     analyze_thermal_config,
 )
-from .diff_engine import (
+from .core.diff_engine import (
     ThermalDiffResult,
     SectionDiff,
     compute_thermal_diff,
 )
-from .adb import (
+from .services.adb_service import (
     ADBManager,
     ConnectedDevice,
     DeviceThermalZone,

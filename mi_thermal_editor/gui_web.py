@@ -18,9 +18,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .adb import ADBManager
-from .analyzer import XIAOMI_SCONFIG_DB, analyze_thermal_config
-from .crypto import (
+from .services.adb_service import ADBManager
+from .core.analyzer import XIAOMI_SCONFIG_DB, analyze_thermal_config
+from .core.crypto import (
     DEFAULT_KEY,
     DEFAULT_IV,
     batch_decrypt_directory,
@@ -31,8 +31,8 @@ from .crypto import (
     save_thermal_file,
     scan_thermal_files,
 )
-from .diff_engine import compute_thermal_diff
-from .parser import parse_thermal_config
+from .core.diff_engine import compute_thermal_diff
+from .core.parser import parse_thermal_config
 
 
 HTML_TEMPLATE = r"""<!DOCTYPE html>

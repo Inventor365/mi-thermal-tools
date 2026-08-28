@@ -16,13 +16,13 @@ if !errorlevel! neq 0 (
     exit /b 1
 )
 
-:: 2. Check cryptography dependency
-python -c "import cryptography" >nul 2>&1
+:: 2. Check dependencies
+python -c "import cryptography; import PySide6" >nul 2>&1
 if !errorlevel! neq 0 (
-    echo [INFO] Missing required package 'cryptography'. Installing now...
-    pip install cryptography
+    echo [INFO] Missing required packages. Installing now...
+    pip install cryptography PySide6
     if !errorlevel! neq 0 (
-        echo [ERROR] Failed to install dependencies. Please run 'pip install cryptography' manually.
+        echo [ERROR] Failed to install dependencies. Please run 'pip install cryptography PySide6' manually.
         pause
         exit /b 1
     )

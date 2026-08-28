@@ -22,7 +22,7 @@
 - [Features](#features)
 - [Installation & Requirements](#installation--requirements)
 - [Graphical User Interface (GUI)](#graphical-user-interface-gui)
-  - [1. Native Desktop GUI (Tkinter)](#1-native-desktop-gui-tkinter)
+  - [1. Native Desktop GUI (PySide6)](#1-native-desktop-gui-pyside6)
   - [2. Embedded Web GUI (Local / Remote / Headless)](#2-embedded-web-gui-local--remote--headless)
 - [Command-Line Interface (CLI) Guide](#command-line-interface-cli-guide)
 - [Deep-Dive Thermal Configuration Anatomy](#deep-dive-thermal-configuration-anatomy)
@@ -194,7 +194,7 @@ The India-specific configuration files (`thermal-india-*.conf`) are tuned for hi
 ### Requirements
 - **OS**: Linux (Ubuntu, Debian, Fedora, Arch, etc.)
 - **Python**: Version 3.8 or newer
-- **Dependencies**: `cryptography`
+- **Dependencies**: `cryptography`, `PySide6`
 - *(Optional)*: `adb` (Android Debug Bridge for USB device communication)
 
 ### Quick Setup (Windows)
@@ -231,7 +231,7 @@ pip3 install -e .
 
 ## ðŸ–¥ï¸ Graphical User Interface (GUI)
 
-### 1. Native Desktop GUI (Tkinter)
+### 1. Native Desktop GUI (PySide6/Qt)
 
 Launch the native desktop interface:
 ```bash
@@ -435,13 +435,9 @@ mi-thermal-editor/
 â”œâ”€â”€ README.md                     # Documentation and guide
 â”œâ”€â”€ GUIDE.md                      # Developer architecture guide
 â”œâ”€â”€ mi_thermal_editor/
-â”‚   â”œâ”€â”€ __init__.py               # Package exports
-â”‚   â”œâ”€â”€ crypto.py                 # AES-128-CBC engine & validation heuristics
-â”‚   â”œâ”€â”€ parser.py                 # .conf and .json AST parser
-â”‚   â”œâ”€â”€ analyzer.py               # Thermal curves & threshold analyzer
-â”‚   â”œâ”€â”€ diff_engine.py            # Section-aware diff engine
-â”‚   â”œâ”€â”€ adb.py                    # ADB device bridge & root injector
-â”‚   â”œâ”€â”€ gui_tk.py                 # Native desktop Tkinter GUI
+â”‚   â”œâ”€â”€ core/                     # Core crypto, parsing, analyzer logic
+â”‚   â”œâ”€â”€ services/                 # ADB and external device services
+â”‚   â”œâ”€â”€ ui/                       # Modern PySide6 Qt Desktop UI components
 â”‚   â”œâ”€â”€ gui_web.py                # Standalone embedded Web GUI
 â”‚   â””â”€â”€ cli.py                    # Command-line interface subcommands
 â””â”€â”€ tests/
