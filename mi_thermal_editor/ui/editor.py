@@ -4,6 +4,8 @@ from PySide6.QtGui import QFont, QSyntaxHighlighter, QTextCharFormat, QColor
 from PySide6.QtCore import Qt, QRegularExpression, Signal
 
 from ..core.crypto import load_thermal_file, save_thermal_file, encrypt_data
+import os
+from .dialogs import ExportDialog
 
 class ThermalHighlighter(QSyntaxHighlighter):
     def __init__(self, document):
@@ -129,18 +131,29 @@ class EditorWidget(QWidget):
 
     def on_export(self):
         content = self.get_content()
-        path, filt = QFileDialog.getSaveFileName(self, "Export Thermal Config", "", "Thermal Config (*.conf);;All Files (*.*)")
-        if not path: return
+        filename = self.current_file.name if self.current_file else "thermal-custom.conf"
+        was_encrypted = self.current_file.is_encrypted if self.current_file else False
         
+        dlg = ExportDialog(self, default_filename=filename, was_encrypted=was_encrypted)
+        if dlg.exec() != ExportDialog.Accepted:
+            return
+            
         try:
-            encrypt = self.chk_encrypt.isChecked()
-            if encrypt:
+            path = dlg.result_path
+            fmt = dlg.result_format
+            backup = dlg.result_backup
+            
+            if backup and os.path.exists(path):
+                import shutil
+                shutil.copy2(path, path + ".bak")
+                
+            if fmt == "encrypted":
                 data = encrypt_data(content)
                 with open(path, "wb") as f:
                     f.write(data)
             else:
                 with open(path, "w", encoding="utf-8") as f:
                     f.write(content)
-            QMessageBox.information(self, "Success", f"Exported successfully to:\n{path}")
+            QMessageBox.information(self, "Success", f"Exported successfully to:\n{path}\nFormat: {fmt}")
         except Exception as e:
             QMessageBox.critical(self, "Export Failed", str(e))
