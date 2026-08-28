@@ -74,42 +74,59 @@ class FileBrowserWidget(QWidget):
         if not self.current_dir.is_dir():
             return
             
-        self.loaded_files = scan_thermal_files(str(self.current_dir))
+        self.loaded_files = scan_thermal_files(str(self.current_dir), recursive=True)
         self.apply_filter()
 
     def apply_filter(self):
         query = self.filter_input.text().lower()
         self.model.removeRows(0, self.model.rowCount())
         
+        dirs = {}
         for fpath in self.loaded_files:
             if query and query not in fpath.name.lower():
                 continue
-                
-            # Quick status peek
+            parent = fpath.parent
+            if parent not in dirs:
+                dirs[parent] = []
+            dirs[parent].append(fpath)
+            
+        for dpath, files in dirs.items():
             try:
-                with open(fpath, "rb") as fp:
-                    header = fp.read(32)
-                is_enc = (len(header) > 0 and not is_printable_text(header[:16].decode("utf-8", "ignore")))
-            except Exception:
-                is_enc = False
+                rel_dir = str(dpath.relative_to(self.current_dir))
+                if rel_dir == ".": rel_dir = str(dpath.name)
+            except ValueError:
+                rel_dir = str(dpath.name)
                 
-            status_str = "🔒 Encrypted" if is_enc else "📄 Plaintext"
+            i_dir = QStandardItem(f"📁 {rel_dir}")
+            i_dir.setSelectable(False)
+            self.model.appendRow([i_dir, QStandardItem(""), QStandardItem("")])
             
-            # Create row
-            i_name = QStandardItem(fpath.name)
-            i_name.setData(fpath, Qt.UserRole)
-            i_status = QStandardItem(status_str)
-            i_profile = QStandardItem("") # Loaded when actually parsed
+            for fpath in files:
+                try:
+                    with open(fpath, "rb") as fp:
+                        header = fp.read(32)
+                    is_enc = (len(header) > 0 and not is_printable_text(header[:16].decode("utf-8", "ignore")))
+                except Exception:
+                    is_enc = False
+                    
+                status_str = "🔒 Encrypted" if is_enc else "📄 Plaintext"
+                
+                i_name = QStandardItem(fpath.name)
+                i_name.setData(fpath, Qt.UserRole)
+                i_status = QStandardItem(status_str)
+                i_profile = QStandardItem("")
+                
+                i_dir.appendRow([i_name, i_status, i_profile])
             
-            self.model.appendRow([i_name, i_status, i_profile])
-            
+        self.tree.expandAll()
         self.tree.resizeColumnToContents(0)
 
     def on_double_click(self, index):
         item = self.model.itemFromIndex(index.siblingAtColumn(0))
         if item:
             path = item.data(Qt.UserRole)
-            self.file_selected.emit(path)
+            if path:
+                self.file_selected.emit(path)
 
     def show_context_menu(self, pos):
         index = self.tree.indexAt(pos)
@@ -119,6 +136,9 @@ class FileBrowserWidget(QWidget):
         item = self.model.itemFromIndex(index.siblingAtColumn(0))
         path = item.data(Qt.UserRole)
         
+        if not path:
+            return
+            
         menu = QMenu(self)
         
         act_open = menu.addAction("Open")

@@ -6,24 +6,41 @@ from ..core.diff_engine import compute_thermal_diff
 from ..core.crypto import load_thermal_file
 
 class DiffHighlighter(QSyntaxHighlighter):
-    def __init__(self, document):
+    def __init__(self, document, is_dark_mode=True):
         super().__init__(document)
         self.rules = []
+        self.set_theme(is_dark_mode)
+
+    def set_theme(self, is_dark_mode):
+        self.rules.clear()
         
         fmt_add = QTextCharFormat()
-        fmt_add.setForeground(QColor("#03DAC6"))
-        fmt_add.setBackground(QColor("#003828"))
+        if is_dark_mode:
+            fmt_add.setForeground(QColor("#03DAC6"))
+            fmt_add.setBackground(QColor("#003828"))
+        else:
+            fmt_add.setForeground(QColor("#006600"))
+            fmt_add.setBackground(QColor("#E6FFE6"))
         self.rules.append((QRegularExpression(r"^\+.*"), fmt_add))
         
         fmt_del = QTextCharFormat()
-        fmt_del.setForeground(QColor("#CF6679"))
-        fmt_del.setBackground(QColor("#380008"))
+        if is_dark_mode:
+            fmt_del.setForeground(QColor("#CF6679"))
+            fmt_del.setBackground(QColor("#380008"))
+        else:
+            fmt_del.setForeground(QColor("#CC0000"))
+            fmt_del.setBackground(QColor("#FFE6E6"))
         self.rules.append((QRegularExpression(r"^\-.*"), fmt_del))
         
         fmt_header = QTextCharFormat()
-        fmt_header.setForeground(QColor("#BB86FC"))
+        if is_dark_mode:
+            fmt_header.setForeground(QColor("#BB86FC"))
+        else:
+            fmt_header.setForeground(QColor("#8A2BE2"))
+            
         self.rules.append((QRegularExpression(r"^@@.*@@"), fmt_header))
         self.rules.append((QRegularExpression(r"^===.*==="), fmt_header))
+        self.rehighlight()
 
     def highlightBlock(self, text):
         for regex, fmt in self.rules:
@@ -65,6 +82,9 @@ class DiffViewer(QWidget):
         
         self.highlighter = DiffHighlighter(self.editor.document())
         layout.addWidget(self.editor)
+
+    def set_theme(self, is_dark_mode):
+        self.highlighter.set_theme(is_dark_mode)
 
     def set_base(self, content, name):
         self.base_content = content

@@ -8,29 +8,38 @@ import os
 from .dialogs import ExportDialog
 
 class ThermalHighlighter(QSyntaxHighlighter):
-    def __init__(self, document):
+    def __init__(self, document, is_dark_mode=True):
         super().__init__(document)
         self.rules = []
+        self.set_theme(is_dark_mode)
+
+    def set_theme(self, is_dark_mode):
+        self.rules.clear()
         
+        c_section = QColor("#00E5FF") if is_dark_mode else QColor("#0066CC")
         fmt_section = QTextCharFormat()
-        fmt_section.setForeground(QColor("#00E5FF"))
+        fmt_section.setForeground(c_section)
         fmt_section.setFontWeight(QFont.Bold)
         self.rules.append((QRegularExpression(r"^\s*\[.*\]\s*$"), fmt_section))
         
+        c_comment = QColor("#757575") if is_dark_mode else QColor("#666666")
         fmt_comment = QTextCharFormat()
-        fmt_comment.setForeground(QColor("#757575"))
+        fmt_comment.setForeground(c_comment)
         fmt_comment.setFontItalic(True)
         self.rules.append((QRegularExpression(r"#.*"), fmt_comment))
         
+        c_keyword = QColor("#BB86FC") if is_dark_mode else QColor("#8A2BE2")
         fmt_keyword = QTextCharFormat()
-        fmt_keyword.setForeground(QColor("#BB86FC"))
+        fmt_keyword.setForeground(c_keyword)
         keywords = ["algo_type", "sensor", "device", "trig", "clr", "target", "polling", "set_point"]
         for k in keywords:
             self.rules.append((QRegularExpression(rf"\b{k}\b"), fmt_keyword))
             
+        c_number = QColor("#FFB74D") if is_dark_mode else QColor("#D2691E")
         fmt_number = QTextCharFormat()
-        fmt_number.setForeground(QColor("#FFB74D"))
+        fmt_number.setForeground(c_number)
         self.rules.append((QRegularExpression(r"\b-?\d+\b"), fmt_number))
+        self.rehighlight()
 
     def highlightBlock(self, text):
         for regex, fmt in self.rules:
@@ -87,6 +96,11 @@ class EditorWidget(QWidget):
         
         self.highlighter = ThermalHighlighter(self.editor.document())
         layout.addWidget(self.editor)
+
+    def set_theme(self, is_dark_mode):
+        self.highlighter.set_theme(is_dark_mode)
+        c_title = "#00E5FF" if is_dark_mode else "#0066CC"
+        self.lbl_title.setStyleSheet(f"font-weight: bold; color: {c_title};")
 
     def load_file(self, path):
         try:

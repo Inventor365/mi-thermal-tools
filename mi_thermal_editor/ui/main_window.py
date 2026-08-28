@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
 from PySide6.QtCore import Qt, QSize
 import sys
 
-from .styles import DARK_THEME
+from .styles import DARK_THEME, LIGHT_THEME
 from .file_browser import FileBrowserWidget
 from .editor import EditorWidget
 from .analyzer_panel import AnalyzerWidget
@@ -16,6 +16,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Mi Thermal Editor")
         self.resize(1200, 800)
+        self.is_dark_mode = True
         self.setStyleSheet(DARK_THEME)
         
         self.adb = ADBManager()
@@ -46,6 +47,17 @@ class MainWindow(QMainWindow):
         act_batch = toolbar.addAction("📦 Batch Operations")
         act_batch.triggered.connect(lambda: self.tabs.setCurrentWidget(self.batch_tab))
         
+        toolbar.addSeparator()
+        
+        # Add stretch equivalent by using an empty, expanding widget if we wanted to
+        # But toolbar layout doesn't natively stretch easily in PySide6 without a custom widget.
+        spacer = QWidget()
+        spacer.setSizePolicy(spacer.sizePolicy().Policy.Expanding, spacer.sizePolicy().Policy.Preferred)
+        toolbar.addWidget(spacer)
+        
+        self.act_theme = toolbar.addAction("🌞 Light Mode")
+        self.act_theme.triggered.connect(self.toggle_theme)
+        
         # Splitter Layout
         splitter = QSplitter(Qt.Horizontal)
         main_layout.addWidget(splitter)
@@ -75,6 +87,16 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.batch_tab, "📦 Batch")
         
         splitter.setSizes([300, 900])
+
+    def toggle_theme(self):
+        self.is_dark_mode = not self.is_dark_mode
+        self.setStyleSheet(DARK_THEME if self.is_dark_mode else LIGHT_THEME)
+        self.act_theme.setText("🌞 Light Mode" if self.is_dark_mode else "🌙 Dark Mode")
+        
+        # Relay theme down to child components that have specific QColor formatting
+        self.editor.set_theme(self.is_dark_mode)
+        self.diff.set_theme(self.is_dark_mode)
+        self.analyzer.set_theme(self.is_dark_mode)
 
     def action_open_workspace(self):
         d = QFileDialog.getExistingDirectory(self, "Open Workspace")

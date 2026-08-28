@@ -30,6 +30,10 @@ class AnalyzerWidget(QWidget):
         
         layout.addWidget(splitter)
 
+    def set_theme(self, is_dark_mode):
+        c_info = "#03DAC6" if is_dark_mode else "#006600"
+        self.lbl_info.setStyleSheet(f"padding: 8px; font-weight: bold; font-size: 11pt; color: {c_info};")
+
     def analyze_content(self, content, filename):
         try:
             report = analyze_thermal_config(content, filename=filename)
